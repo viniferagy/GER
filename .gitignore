@@ -1,0 +1,8 @@
+.venv/
+.conda_eval_official/
+.conda_eval_estspacy/
+cache/
+logs/
+datasets/
+**/__pycache__/
+*.pyc
