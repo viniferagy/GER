@@ -1,29 +1,222 @@
-# GER
+# Encode Errors
 
-This repository contains the GER pipeline for multilingual grammatical error correction.
+Code and resources for **Encode Errors: Representational Retrieval of In-Context Demonstrations for Multilingual Grammatical Error Correction**, ACL 2025 Findings.
 
-## Setup
-1. Create the Python environments used by the project.
-2. Ensure the model checkpoints are available under `models/`.
-3. Ensure the datasets are available under `datasets/`.
+GER retrieves in-context demonstrations by encoding grammatical error information from an initial correction pass, then uses the retrieved demonstrations for final multilingual grammatical error correction.
 
-## Run Table 1
-1. Prepare retrieval and runtime files:
-   `python scripts/ger_new_table1.py prepare`
-2. Launch the generated Table 1 job script under `repro/new_table1/`.
-3. Wait for the persistent run to finish and write the completion markers.
-4. Collect scores:
-   `python scripts/ger_new_table1.py collect`
+## 1. Environment
 
-## Official scoring
-1. Score Romanian outputs with the local ERRANT path.
-2. Score Estonian outputs with the bundled modified M2 scorer.
-3. Package BEA-19 submissions with:
-   `python scripts/ger_prepare_bea19_submission.py --write`
-4. Apply the standard fixed postprocess with:
-   `python scripts/ger_standard_postprocess.py --input INPUT.jsonl --output-jsonl OUTPUT.jsonl --output-txt OUTPUT.txt --char-threshold 0.96`
+Clone the repository and enter the project root.
 
-## Outputs
-- `results/official_eval/new_table1/...` stores official-style scores.
-- `results/ger_new_table1*.csv` stores run summaries.
-- `results/ger_new_table1.md` stores the Table 1 summary.
+```bash
+cd ger-commit
+```
+
+Create the main GER environment.
+
+For 4 x RTX 4090 / CUDA 12.8:
+
+```bash
+bash setup_uv_4090_cuda128.sh
+source .venv/bin/activate
+```
+
+For A800 / CUDA 12.6:
+
+```bash
+bash setup_uv_a800_cuda126.sh
+source .venv/bin/activate
+```
+
+Create the Romanian scoring environment.
+
+```bash
+conda create -y -p ./.conda_eval_official python=3.8
+.conda_eval_official/bin/python -m pip install \
+  spacy==2.3.9 \
+  nltk==3.9.1 \
+  regex==2024.11.6 \
+  rbpy-rb==0.6.6 \
+  certifi==2026.5.20
+mkdir -p .conda_eval_official/ssl
+.conda_eval_official/bin/python - <<'PY'
+import shutil
+import certifi
+from pathlib import Path
+dst = Path(".conda_eval_official/ssl/cacert.pem")
+dst.parent.mkdir(parents=True, exist_ok=True)
+shutil.copyfile(certifi.where(), dst)
+PY
+```
+
+Create the Estonian scoring environment.
+
+```bash
+conda create -y -p ./.conda_eval_estspacy python=3.8
+.conda_eval_estspacy/bin/python -m pip install \
+  spacy==3.0.9 \
+  https://github.com/EstSyntax/EstSpaCy/releases/download/v1.0/et_dep_ud_sm-1.0.0.tar.gz
+```
+
+## 2. Models
+
+Place the Hugging Face model directories under `models/`.
+
+```text
+models/
+  Meta-Llama-3.1-8B-Instruct/
+  Qwen2.5-7B-Instruct/
+```
+
+The pipeline uses the following model keys:
+
+```text
+llama31 -> models/Meta-Llama-3.1-8B-Instruct
+qwen25  -> models/Qwen2.5-7B-Instruct
+```
+
+## 3. Data
+
+Place the dataset sources under `datasets/`.
+
+```text
+datasets/
+  external/
+    ronacc_readerbench/
+      train.txt
+      dev.txt
+      test.txt
+  multilingual/
+    rogec/
+      errant/
+  multilingual_raw/
+    EN-conll14st-test-data/
+    EN-wi+locness/
+    DE-FALKO-MERLIN/
+    RO-RoGEC/
+    ET-estgec/
+```
+
+Prepare the standard JSON and runtime files.
+
+```bash
+python scripts/ger_prepare_datasets.py --overwrite
+```
+
+To prepare selected datasets only:
+
+```bash
+python scripts/ger_prepare_datasets.py --languages en de ro --overwrite
+```
+
+Language keys:
+
+```text
+en    -> CoNLL-14
+bea19 -> BEA-19
+de    -> Falko-Merlin
+ro    -> RoGEC / RONACC ReaderBench
+et    -> EstGEC
+```
+
+## 4. Run GER
+
+Run the full Table 1 setting: two models, five datasets, three seeds.
+
+```bash
+python scripts/ger.py \
+  --models llama31 qwen25 \
+  --languages en bea19 de ro et \
+  --seeds 88 111 222 \
+  --gpus 0,1,2,3 \
+  --num-shards 4 \
+  --batch-size 4 \
+  --execute
+```
+
+Run one model, one dataset, one seed.
+
+```bash
+python scripts/ger.py \
+  --models llama31 \
+  --languages en \
+  --seeds 88 \
+  --gpus 0,1,2,3 \
+  --num-shards 4 \
+  --batch-size 4 \
+  --execute
+```
+
+Run each pipeline stage separately.
+
+```bash
+python scripts/ger.py --models llama31 --languages en --seeds 88 --start-at initial --stop-after initial --gpus 0,1,2,3 --execute
+python scripts/ger.py --models llama31 --languages en --seeds 88 --start-at cache --stop-after cache --gpus 0,1,2,3 --execute
+python scripts/ger.py --models llama31 --languages en --seeds 88 --start-at retrieval --stop-after retrieval --gpus 0,1,2,3 --execute
+python scripts/ger.py --models llama31 --languages en --seeds 88 --start-at final --stop-after final --gpus 0,1,2,3 --execute
+python scripts/ger.py --models llama31 --languages en --seeds 88 --start-at score --stop-after score --gpus 0,1,2,3 --execute
+```
+
+Resume from a stage and overwrite existing artifacts when needed.
+
+```bash
+python scripts/ger.py \
+  --models llama31 \
+  --languages en \
+  --seeds 88 \
+  --start-at retrieval \
+  --gpus 0,1,2,3 \
+  --num-shards 4 \
+  --overwrite \
+  --execute
+```
+
+## 5. Outputs
+
+Initial correction outputs:
+
+```text
+multilingual/results_<model>_default/initial_predictions_train_8/<train_dataset>/
+multilingual/results_<model>_default/initial_predictions_test_8/<test_dataset>/
+```
+
+GER representation cache:
+
+```text
+cache/representation/
+```
+
+GER retrieved demonstrations:
+
+```text
+multilingual/results_ger_<model>/retrieve_ger_source/retrieved_examples_dim<dim>_8_8/<test_dataset>/retrieval.jsonl
+multilingual/results_ger_<model>/retrieve_ger_vanilla_seed<seed>/<test_dataset>/retrieval.jsonl
+```
+
+Final GER generations:
+
+```text
+multilingual/results_ger_<model>/res_ger_vanilla_seed<seed>/<test_dataset>/predictions.jsonl
+```
+
+Scores and submission files:
+
+```text
+results/official_eval/ger/<dataset>/<model>_ger_vanilla_seed<seed>/
+```
+
+BEA-19 submission archives are written to:
+
+```text
+results/official_eval/ger/bea19/<model>_ger_vanilla_seed<seed>/bea19.zip
+```
+
+## 6. Citation
+
+```bibtex
+@inproceedings{encode-errors-2025,
+  title = {Encode Errors: Representational Retrieval of In-Context Demonstrations for Multilingual Grammatical Error Correction},
+  booktitle = {Findings of the Association for Computational Linguistics: ACL 2025},
+  year = {2025}
+}
+```

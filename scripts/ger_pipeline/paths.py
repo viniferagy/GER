@@ -1,4 +1,4 @@
-"""Path derivation for GER reproduction artifacts."""
+"""GER path derivation for reproduction artifacts."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -35,20 +35,20 @@ class ProjectPaths:
         return self.root / "multilingual"
 
     @property
-    def multi_p_dir(self) -> Path:
-        return self.root / "datasets" / "multi_p"
+    def inference_runtime_dir(self) -> Path:
+        return self.root / "scripts" / "ger_runtime" / "inference"
+
+    @property
+    def runtime_train_data_dir(self) -> Path:
+        return self.multilingual_dir / "runtime_train_data"
 
     @property
     def datasets_dir(self) -> Path:
         return self.root / "datasets"
 
     @property
-    def reference_results_dir(self) -> Path:
-        return self.root / "results" / "llama3.1"
-
-    @property
     def repe_gec_dir(self) -> Path:
-        return self.root / "representation-engineering" / "examples" / "gec"
+        return self.root / "scripts" / "ger_runtime" / "repe_gec"
 
     @property
     def python(self) -> Path:
@@ -60,82 +60,39 @@ class ProjectPaths:
         candidates = (
             self.root / "tools" / "run_and_hold.sh",
             self.root / "run_and_hold.sh",
-            self.root.parent / "run_and_hold.sh",
         )
         for candidate in candidates:
             if candidate.exists():
                 return candidate.resolve()
-        return self.root.parent / "run_and_hold.sh"
+        raise FileNotFoundError(f"run_and_hold.sh not found under project root: {self.root}")
 
     @property
     def preprocess_data(self) -> Path:
-        return self.root / "utils" / "preprocess_data.py"
-
-    @property
-    def bea19_blind_source(self) -> Path:
-        return self.root / "datasets" / "multilingual" / "wilocness" / "wi+locness" / "test" / "ABCN.test.bea19.orig"
+        return self.root / "scripts" / "ger_runtime" / "preprocess_data.py"
 
     def model_path(self, model: ModelSpec) -> Path:
         return default_model_path(self.root, model)
 
-    def baseline_dir(self, model: ModelSpec, split: str) -> Path:
+    def initial_prediction_dir(self, model: ModelSpec, split: str) -> Path:
         suffix = self.train_suffix if split == "train" else self.test_suffix
         return (
             self.multilingual_dir
-            / f"results_{model.key}_{model.baseline_result_mode}"
-            / f"icl_{model.key}_res_random_pgy_{split}{suffix}"
+            / f"results_{model.key}_{model.initial_result_mode}"
+            / f"initial_predictions_{split}{suffix}"
         )
 
-    def paper_random_dir(self, model: ModelSpec, seed: int) -> Path:
-        return (
-            self.multilingual_dir
-            / f"results_{model.key}_{model.baseline_result_mode}"
-            / f"icl_{model.key}_res_random8_seed{seed}_pgy_test{self.test_suffix}"
-        )
-
-    def baseline_prediction_prefix(self, model: ModelSpec, lang: LanguageSpec, split: str) -> Path:
+    def initial_prediction_prefix(self, model: ModelSpec, lang: LanguageSpec, split: str) -> Path:
         dataset = lang.train_dataset if split == "train" else lang.test_dataset
-        return self.baseline_dir(model, split) / dataset / f"{dataset}-output-retokenized"
+        return self.initial_prediction_dir(model, split) / dataset / f"{dataset}-output-retokenized"
 
-    def baseline_source_file(self, lang: LanguageSpec, split: str) -> Path:
+    def initial_source_file(self, lang: LanguageSpec, split: str) -> Path:
         if split == "train":
-            return self.multi_p_dir / lang.train_dataset / "train.src"
-        return self.reference_results_dir / f"{lang.test_dataset}.src"
+            return self.runtime_train_data_dir / lang.train_dataset / "train.src"
+        return self.multilingual_dir / "runtime_sources" / lang.test_dataset / "test.src"
 
     def cache_prefix(self, model: ModelSpec, lang: LanguageSpec) -> str:
         cache_code = "en" if lang.code == "bea19" else lang.code
-        return f"gec_representation_cache_{model.key}_{model.baseline_result_mode}_{cache_code}{self.train_suffix}"
-
-    def sentence_result_dir_name(self, model: ModelSpec) -> str:
-        return f"results_sentence_{model.key}"
-
-    def retrieval_dir(self, model: ModelSpec, lang: LanguageSpec) -> Path:
-        return (
-            self.multilingual_dir
-            / self.sentence_result_dir_name(model)
-            / f"icl_deepseek_retrieve_by_probing_pgy_{model.retrieve_dim}{self.train_suffix}{self.test_suffix}"
-            / lang.test_dataset
-        )
-
-    def probing_result_dir(self, model: ModelSpec, lang: LanguageSpec) -> Path:
-        return (
-            self.multilingual_dir
-            / self.sentence_result_dir_name(model)
-            / f"icl_deepseek_res_probing_pgy_{model.retrieve_dim}{self.train_suffix}{self.test_suffix}"
-            / lang.test_dataset
-        )
-
-    def score_file(self, model: ModelSpec, lang: LanguageSpec) -> Path:
-        if not lang.local_scoring:
-            return self.probing_result_dir(model, lang) / f"{lang.test_dataset}.score"
-        if lang.test_dataset == "nlpcc18":
-            return self.probing_result_dir(model, lang) / "nlpcc18.score"
-        return self.probing_result_dir(model, lang) / f"{lang.test_dataset}.score"
-
-    def probing_output_file(self, model: ModelSpec, lang: LanguageSpec) -> Path:
-        if lang.submission_output:
-            return self.probing_result_dir(model, lang) / f"{lang.test_dataset}.txt"
-        return self.probing_result_dir(model, lang) / f"{lang.test_dataset}-output-retokenized.txt"
+        return f"gec_representation_cache_{model.key}_{model.initial_result_mode}_{cache_code}{self.train_suffix}"
 
     def m2_file(self, lang: LanguageSpec) -> Path:
         if not lang.m2_relative_path:

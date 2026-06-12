@@ -1,0 +1,11 @@
+# Post-uv override packages.
+#
+# Install this after `uv sync --extra cuda*`. These packages intentionally
+# override the resolver baseline in pyproject.toml for the local vLLM runtime.
+# Do not add the old TRL parser dependency here; GER inference uses argparse.
+
+vllm==0.11.1
+transformers==4.57.6
+tokenizers==0.22.2
+huggingface-hub==0.36.2
+numpy==2.2.6

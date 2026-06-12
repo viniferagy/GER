@@ -1,4 +1,4 @@
-"""Experiment configuration for the cleaned GER reproduction pipeline."""
+"""GER experiment configuration."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -10,9 +10,9 @@ class LanguageSpec:
     code: str
     test_dataset: str
     train_dataset: str
-    database_dataset: str
+    source_dataset: str
     yaml_dataset: str
-    baseline_prompt_icl: str
+    initial_prompt_icl: str
     final_prompt_icl: str
     m2_relative_path: str
     retokenized_output: bool = True
@@ -24,26 +24,26 @@ class LanguageSpec:
 class ModelSpec:
     key: str
     model_dir_name: str
-    baseline_result_mode: str = "default"
+    initial_result_mode: str = "default"
     retrieve_dim: int = 128
     layer_index: int = -12
 
 
-DEFAULT_LANGUAGES = ("en", "de", "ru", "et", "zh", "ro")
+TABLE1_LANGUAGES = ("en", "bea19", "de", "ro", "et")
 DEFAULT_MODELS = ("llama31", "qwen25")
 DEFAULT_TRAIN_SUFFIX = "_8"
 DEFAULT_TEST_SUFFIX = "_8"
-DEFAULT_GPU = "0"
-DEFAULT_PAPER_RANDOM_SEEDS = (88, 111, 222)
+DEFAULT_SEEDS = (88, 111, 222)
+
 
 LANGUAGES: dict[str, LanguageSpec] = {
     "en": LanguageSpec(
         code="en",
         test_dataset="conll14",
         train_dataset="wilocness",
-        database_dataset="wilocness",
+        source_dataset="wilocness",
         yaml_dataset="conll14:wilocness",
-        baseline_prompt_icl="reproduce_space_en_8fix",
+        initial_prompt_icl="reproduce_space_en_8fix",
         final_prompt_icl="min_edit_fewshot_space",
         m2_relative_path="multilingual_raw/EN-conll14st-test-data/noalt/official-2014.combined.m2",
     ),
@@ -51,9 +51,9 @@ LANGUAGES: dict[str, LanguageSpec] = {
         code="bea19",
         test_dataset="bea19",
         train_dataset="wilocness",
-        database_dataset="wilocness",
+        source_dataset="wilocness",
         yaml_dataset="bea19:wilocness",
-        baseline_prompt_icl="reproduce_space_en_8fix",
+        initial_prompt_icl="reproduce_space_en_8fix",
         final_prompt_icl="min_edit_fewshot_space",
         m2_relative_path="",
         retokenized_output=False,
@@ -64,53 +64,34 @@ LANGUAGES: dict[str, LanguageSpec] = {
         code="de",
         test_dataset="falko_merlin",
         train_dataset="falko_merlin_train",
-        database_dataset="falko_merlin",
+        source_dataset="falko_merlin",
         yaml_dataset="falko_merlin:falko_merlin",
-        baseline_prompt_icl="reproduce_space_de_8fix",
+        initial_prompt_icl="reproduce_space_de_8fix",
         final_prompt_icl="min_edit_fewshot_space",
         m2_relative_path="multilingual_raw/DE-FALKO-MERLIN/fm-test.m2",
-    ),
-    "ru": LanguageSpec(
-        code="ru",
-        test_dataset="rulec",
-        train_dataset="rulec_train",
-        database_dataset="rulec",
-        yaml_dataset="rulec:rulec",
-        baseline_prompt_icl="reproduce_space_ru_8fix",
-        final_prompt_icl="min_edit_fewshot_space",
-        m2_relative_path="multilingual_raw/RU-RULEC/RULEC-GEC.test.M2",
-    ),
-    "et": LanguageSpec(
-        code="et",
-        test_dataset="estgec",
-        train_dataset="estgec_train",
-        database_dataset="estgec",
-        yaml_dataset="estgec:estgec",
-        baseline_prompt_icl="reproduce_space_et_8fix",
-        final_prompt_icl="min_edit_fewshot_space",
-        m2_relative_path="multilingual_raw/ET-estgec/Tartu_L1_corpus/test/test_m2.txt",
-    ),
-    "zh": LanguageSpec(
-        code="zh",
-        test_dataset="nlpcc18",
-        train_dataset="hsk",
-        database_dataset="hsk",
-        yaml_dataset="nlpcc18:hsk",
-        baseline_prompt_icl="reproduce_nospace_zh_8fix",
-        final_prompt_icl="min_edit_fewshot",
-        m2_relative_path="multilingual_raw/ZH-nlpcc18/test/test.gold.m2",
     ),
     "ro": LanguageSpec(
         code="ro",
         test_dataset="rogec",
         train_dataset="rogec_train",
-        database_dataset="rogec",
+        source_dataset="rogec",
         yaml_dataset="rogec:rogec",
-        baseline_prompt_icl="reproduce_space_ro_8fix",
+        initial_prompt_icl="reproduce_space_ro_8fix",
         final_prompt_icl="min_edit_fewshot_space",
         m2_relative_path="multilingual/rogec/test.m2",
     ),
+    "et": LanguageSpec(
+        code="et",
+        test_dataset="estgec",
+        train_dataset="estgec_train",
+        source_dataset="estgec",
+        yaml_dataset="estgec:estgec",
+        initial_prompt_icl="reproduce_space_et_8fix",
+        final_prompt_icl="min_edit_fewshot_space",
+        m2_relative_path="multilingual_raw/ET-estgec/Tartu_L1_corpus/test/test_m2.txt",
+    ),
 }
+
 
 MODELS: dict[str, ModelSpec] = {
     "llama31": ModelSpec(
@@ -144,13 +125,3 @@ def get_model(key: str) -> ModelSpec:
 
 def default_model_path(project_root: Path, model: ModelSpec) -> Path:
     return project_root / "models" / model.model_dir_name
-
-
-def normalize_paper_random_seeds(seeds: list[int] | tuple[int, ...]) -> tuple[int, int, int]:
-    normalized = tuple(int(seed) for seed in seeds)
-    if len(normalized) != 3 or len(set(normalized)) != 3:
-        raise ValueError(
-            "Paper Table 1 Random requires exactly three unique seeds; "
-            f"received {','.join(str(seed) for seed in normalized) or '<none>'}"
-        )
-    return normalized

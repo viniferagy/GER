@@ -1,0 +1,138 @@
+[project]
+name = "ger-workflow"
+version = "0.1.0"
+description = "Environment for multilingual GEC/GER and representation-engineering experiments."
+requires-python = ">=3.10,<3.13"
+dependencies = [
+    "pip",
+    "setuptools",
+    "wheel",
+    "packaging",
+    "ninja",
+    "cmake",
+    "accelerate==1.0.1",
+    "transformers==4.46.1",
+    "tokenizers==0.20.1",
+    "datasets==3.1.0",
+    "peft==0.13.2",
+    "deepspeed==0.15.4",
+    "evaluate",
+    "sentencepiece",
+    "protobuf",
+    "safetensors",
+    "huggingface-hub==0.26.2",
+    "numpy==1.26.4",
+    "pandas==2.2.3",
+    "openpyxl==3.1.5",
+    "scipy==1.14.1",
+    "scikit-learn==1.5.2",
+    "matplotlib==3.9.2",
+    "seaborn==0.13.2",
+    "optuna",
+    "tqdm",
+    "rich",
+    "PyYAML",
+    "wandb",
+    "tensorboardX",
+    "nvitop",
+    "spacy==3.8.3",
+    "errant==3.0.0",
+    "OpenCC",
+    "opencc-python-reimplemented",
+    "ltp",
+    "pypinyin",
+    "Levenshtein",
+    "sentence-transformers",
+    "llama-index==0.11.23",
+    "llama-index-embeddings-huggingface==0.3.1",
+    "llama-index-retrievers-bm25==0.4.0",
+    "nltk",
+    "rank-bm25",
+    "seqeval",
+    "de-core-news-sm @ https://github.com/explosion/spacy-models/releases/download/de_core_news_sm-3.8.0/de_core_news_sm-3.8.0-py3-none-any.whl",
+    "en-core-web-sm @ https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl",
+    "repe==0.1.4",
+]
+
+[project.optional-dependencies]
+cuda126 = [
+    "torch==2.6.0",
+    "torchvision==0.21.0",
+    "torchaudio==2.6.0",
+    "nvidia-cublas-cu12",
+    "nvidia-cuda-cupti-cu12",
+    "nvidia-cuda-nvrtc-cu12",
+    "nvidia-cuda-runtime-cu12",
+    "nvidia-cudnn-cu12",
+    "nvidia-cufft-cu12",
+    "nvidia-curand-cu12",
+    "nvidia-cusolver-cu12",
+    "nvidia-cusparse-cu12",
+    "nvidia-cusparselt-cu12",
+    "nvidia-nccl-cu12",
+    "nvidia-nvjitlink-cu12",
+    "nvidia-nvtx-cu12",
+]
+cuda128 = [
+    "torch==2.9.0",
+    "torchvision==0.24.0",
+    "torchaudio==2.9.0",
+    "nvidia-cublas-cu12",
+    "nvidia-cuda-cupti-cu12",
+    "nvidia-cuda-nvrtc-cu12",
+    "nvidia-cuda-runtime-cu12",
+    "nvidia-cudnn-cu12",
+    "nvidia-cufft-cu12",
+    "nvidia-curand-cu12",
+    "nvidia-cusolver-cu12",
+    "nvidia-cusparse-cu12",
+    "nvidia-cusparselt-cu12",
+    "nvidia-nccl-cu12",
+    "nvidia-nvjitlink-cu12",
+    "nvidia-nvtx-cu12",
+]
+
+[tool.uv]
+package = false
+
+[tool.uv.sources]
+repe = { path = "representation-engineering", editable = true }
+torch = [
+    { index = "pytorch-cu126", marker = "extra == 'cuda126'" },
+    { index = "pytorch-cu128", marker = "extra != 'cuda126' and extra == 'cuda128'" },
+]
+torchvision = [
+    { index = "pytorch-cu126", marker = "extra == 'cuda126'" },
+    { index = "pytorch-cu128", marker = "extra != 'cuda126' and extra == 'cuda128'" },
+]
+torchaudio = [
+    { index = "pytorch-cu126", marker = "extra == 'cuda126'" },
+    { index = "pytorch-cu128", marker = "extra != 'cuda126' and extra == 'cuda128'" },
+]
+nvidia-cublas-cu12 = { index = "nvidia" }
+nvidia-cuda-cupti-cu12 = { index = "nvidia" }
+nvidia-cuda-nvrtc-cu12 = { index = "nvidia" }
+nvidia-cuda-runtime-cu12 = { index = "nvidia" }
+nvidia-cudnn-cu12 = { index = "nvidia" }
+nvidia-cufft-cu12 = { index = "nvidia" }
+nvidia-curand-cu12 = { index = "nvidia" }
+nvidia-cusolver-cu12 = { index = "nvidia" }
+nvidia-cusparse-cu12 = { index = "nvidia" }
+nvidia-cusparselt-cu12 = { index = "nvidia" }
+nvidia-nccl-cu12 = { index = "nvidia" }
+nvidia-nvjitlink-cu12 = { index = "nvidia" }
+nvidia-nvtx-cu12 = { index = "nvidia" }
+
+[[tool.uv.index]]
+name = "pytorch-cu126"
+url = "https://download.pytorch.org/whl/cu126"
+explicit = true
+
+[[tool.uv.index]]
+name = "pytorch-cu128"
+url = "https://download.pytorch.org/whl/cu128"
+explicit = true
+
+[[tool.uv.index]]
+name = "nvidia"
+url = "https://pypi.nvidia.com"
