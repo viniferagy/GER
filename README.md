@@ -1,6 +1,6 @@
 # Encode Errors
 
-Code and resources for **Encode Errors: Representational Retrieval of In-Context Demonstrations for Multilingual Grammatical Error Correction**, ACL 2025 Findings.
+Code and resources for **[Encode Errors: Representational Retrieval of In-Context Demonstrations for Multilingual Grammatical Error Correction](https://aclanthology.org/2025.findings-acl.1090/)**, ACL 2025 Findings.
 
 GER retrieves in-context demonstrations by encoding grammatical error information from an initial correction pass, then uses the retrieved demonstrations for final multilingual grammatical error correction.
 
