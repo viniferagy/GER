@@ -2,17 +2,15 @@
 set -euo pipefail
 
 # Environment installer for the GEC/GER + representation-engineering workflow.
-# Target machine: 4 x A800-80G, NVIDIA driver 560.35.03, CUDA 12.6.
+# Requires an NVIDIA driver new enough for CUDA 12.8.
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="${PROJECT_ROOT:-${SCRIPT_DIR}}"
 GER_ROOT="${GER_ROOT:-${PROJECT_ROOT}/multilingual}"
 VENV_DIR="${VENV_DIR:-${PROJECT_ROOT}/.venv}"
-PYTHON_VERSION="${PYTHON_VERSION:-3.10}"
+PYTHON_VERSION="${PYTHON_VERSION:-3.12}"
 
-# Optional heavy build. Keep this off unless the code path really imports flash_attn.
-# On older Linux images, prebuilt flash-attn wheels can require a newer GLIBC than
-# the host provides, so when enabled we force a local source build.
+# Optional heavy build. Leave off unless a code path really imports flash_attn.
 INSTALL_FLASH_ATTN="${INSTALL_FLASH_ATTN:-0}"
 
 cd "${PROJECT_ROOT}"
@@ -24,7 +22,7 @@ fi
 
 uv python install "${PYTHON_VERSION}"
 export UV_PROJECT_ENVIRONMENT="${VENV_DIR}"
-DS_BUILD_OPS=0 uv sync --python "${PYTHON_VERSION}" --extra cuda126
+DS_BUILD_OPS=0 uv sync --python "${PYTHON_VERSION}" --extra cuda128
 uv pip install --python "${VENV_DIR}/bin/python" -r requirements.txt
 source "${VENV_DIR}/bin/activate"
 SITE_PACKAGES="$(python - <<'PY'
@@ -39,8 +37,8 @@ fi
 
 if [ "${INSTALL_FLASH_ATTN}" = "1" ]; then
     if ! command -v nvcc >/dev/null 2>&1; then
-        echo "INSTALL_FLASH_ATTN=1 requires nvcc so flash-attn can be built against this host GLIBC."
-        echo "Either load a CUDA devel module/toolkit first, or leave INSTALL_FLASH_ATTN=0."
+        echo "INSTALL_FLASH_ATTN=1 requires nvcc so flash-attn can be built against this host."
+        echo "Either load a CUDA devel toolkit first, or leave INSTALL_FLASH_ATTN=0."
         exit 1
     fi
     MAX_JOBS="${MAX_JOBS:-8}" uv pip install \
@@ -64,6 +62,8 @@ import transformers, datasets, sklearn, spacy
 print("transformers:", transformers.__version__)
 print("datasets:", datasets.__version__)
 print("sklearn:", sklearn.__version__)
+spacy.load("de_core_news_sm")
+print("spacy de_core_news_sm ok")
 
 from repe import repe_pipeline_registry
 repe_pipeline_registry()

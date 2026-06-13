@@ -14,17 +14,8 @@ cd ger-commit
 
 Create the main GER environment.
 
-For 4 x RTX 4090 / CUDA 12.8:
-
 ```bash
-bash setup_uv_4090_cuda128.sh
-source .venv/bin/activate
-```
-
-For A800 / CUDA 12.6:
-
-```bash
-bash setup_uv_a800_cuda126.sh
+bash setup_uv_cuda128.sh
 source .venv/bin/activate
 ```
 
@@ -211,12 +202,27 @@ BEA-19 submission archives are written to:
 results/official_eval/ger/bea19/<model>_ger_vanilla_seed<seed>/bea19.zip
 ```
 
+BEA-19 test references are not public, so the local pipeline only prepares the
+submission archive. Upload `bea19.zip` to the BEA-2019 Codabench competition to
+obtain the official test score:
+https://www.codabench.org/competitions/10960/
+
 ## 6. Citation
 
 ```bibtex
-@inproceedings{encode-errors-2025,
-  title = {Encode Errors: Representational Retrieval of In-Context Demonstrations for Multilingual Grammatical Error Correction},
-  booktitle = {Findings of the Association for Computational Linguistics: ACL 2025},
-  year = {2025}
+@inproceedings{peng-etal-2025-encode,
+    title = "Encode Errors: Representational Retrieval of In-Context Demonstrations for Multilingual Grammatical Error Correction",
+    author = "Peng, Guangyue  and
+      Li, Wei  and
+      Luo, Wen  and
+      Wang, Houfeng",
+    booktitle = "Findings of the Association for Computational Linguistics: ACL 2025",
+    month = jul,
+    year = "2025",
+    address = "Vienna, Austria",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2025.findings-acl.1090/",
+    doi = "10.18653/v1/2025.findings-acl.1090",
+    pages = "21166--21180",
 }
 ```

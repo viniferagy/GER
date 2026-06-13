@@ -55,24 +55,6 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-cuda126 = [
-    "torch==2.6.0",
-    "torchvision==0.21.0",
-    "torchaudio==2.6.0",
-    "nvidia-cublas-cu12",
-    "nvidia-cuda-cupti-cu12",
-    "nvidia-cuda-nvrtc-cu12",
-    "nvidia-cuda-runtime-cu12",
-    "nvidia-cudnn-cu12",
-    "nvidia-cufft-cu12",
-    "nvidia-curand-cu12",
-    "nvidia-cusolver-cu12",
-    "nvidia-cusparse-cu12",
-    "nvidia-cusparselt-cu12",
-    "nvidia-nccl-cu12",
-    "nvidia-nvjitlink-cu12",
-    "nvidia-nvtx-cu12",
-]
 cuda128 = [
     "torch==2.9.0",
     "torchvision==0.24.0",
@@ -97,18 +79,9 @@ package = false
 
 [tool.uv.sources]
 repe = { path = "representation-engineering", editable = true }
-torch = [
-    { index = "pytorch-cu126", marker = "extra == 'cuda126'" },
-    { index = "pytorch-cu128", marker = "extra != 'cuda126' and extra == 'cuda128'" },
-]
-torchvision = [
-    { index = "pytorch-cu126", marker = "extra == 'cuda126'" },
-    { index = "pytorch-cu128", marker = "extra != 'cuda126' and extra == 'cuda128'" },
-]
-torchaudio = [
-    { index = "pytorch-cu126", marker = "extra == 'cuda126'" },
-    { index = "pytorch-cu128", marker = "extra != 'cuda126' and extra == 'cuda128'" },
-]
+torch = { index = "pytorch-cu128" }
+torchvision = { index = "pytorch-cu128" }
+torchaudio = { index = "pytorch-cu128" }
 nvidia-cublas-cu12 = { index = "nvidia" }
 nvidia-cuda-cupti-cu12 = { index = "nvidia" }
 nvidia-cuda-nvrtc-cu12 = { index = "nvidia" }
@@ -122,11 +95,6 @@ nvidia-cusparselt-cu12 = { index = "nvidia" }
 nvidia-nccl-cu12 = { index = "nvidia" }
 nvidia-nvjitlink-cu12 = { index = "nvidia" }
 nvidia-nvtx-cu12 = { index = "nvidia" }
-
-[[tool.uv.index]]
-name = "pytorch-cu126"
-url = "https://download.pytorch.org/whl/cu126"
-explicit = true
 
 [[tool.uv.index]]
 name = "pytorch-cu128"

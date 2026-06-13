@@ -7,11 +7,8 @@ runs final generation, applies standard postprocessing, and scores the output.
 
 ## Entrypoints
 
-- `setup_uv_4090_cuda128.sh`: create the 4090 uv environment. It runs
+- `setup_uv_cuda128.sh`: create the uv environment. It runs
   `uv sync --extra cuda128`, then applies `requirements.txt` as the post-uv
-  runtime override.
-- `setup_uv_a800_cuda126.sh`: create the A800 uv environment. It runs
-  `uv sync --extra cuda126`, then applies `requirements.txt` as the post-uv
   runtime override.
 - `pyproject.toml`: uv resolver baseline for the project environment.
 - `requirements.txt`: post-uv override packages for the local vLLM runtime.
