@@ -4,6 +4,8 @@ Code and resources for **[Encode Errors: Representational Retrieval of In-Contex
 
 GER retrieves in-context demonstrations by encoding grammatical error information from an initial correction pass, then uses the retrieved demonstrations for final multilingual grammatical error correction.
 
+Baselines are adapted from [GMago-LeWay/FewShotGEC](https://github.com/GMago-LeWay/FewShotGEC).
+
 ## 1. Environment
 
 Clone the repository and enter the project root.
