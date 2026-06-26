@@ -28,13 +28,11 @@ runs final generation, applies standard postprocessing, and scores the output.
 | BEA-19 | `datasets/multilingual/bea19/test.json` | `datasets/multilingual_raw/EN-wi+locness/test/ABCN.test.bea19.orig` |
 | WI+LOCNESS train | `datasets/multilingual/wilocness/train.json` | `datasets/multilingual_raw/EN-wi+locness/m2/ABC.train.gold.bea19.m2` |
 | Falko-Merlin | `datasets/multilingual/falko_merlin/{train,valid,test}.json` and `datasets/multilingual/falko_merlin_train/{train,valid}.json` | `datasets/multilingual_raw/DE-FALKO-MERLIN/fm-{train,dev,test}.{src,trg}` |
-| RoGEC | `datasets/multilingual/rogec/{train,valid,test}.json` and `datasets/multilingual/rogec_train/{train,valid}.json` | `datasets/multilingual_raw/RO-RoGEC/{train,dev,test}.txt` |
-| RONACC/ReaderBench scoring | `datasets/external/ronacc_readerbench/{train,dev,test}.{src,tgt}` and `test.m2` | `datasets/external/ronacc_readerbench/{train,dev,test}.txt` |
+| RONACC/ReaderBench | `datasets/multilingual/ronacc_readerbench/{train,valid,test}.json`, `datasets/multilingual/ronacc_readerbench_train/{train,valid}.json`, and `datasets/external/ronacc_readerbench/test.m2` | `datasets/external/ronacc_readerbench/{train,dev,test}.txt` or prepared `{train,dev,test}.{src,tgt}` |
 | EstGEC | `datasets/multilingual/estgec/{train,valid,test}.json` and `datasets/multilingual/estgec_train/{train,valid}.json` | `datasets/multilingual_raw/ET-estgec/Tartu_L2_corpus/Tartu_L2_learner_corpus_parallel.txt` and `datasets/multilingual_raw/ET-estgec/Tartu_L1_corpus/test/test_m2.txt` |
 
-The formal pipeline does not generate or read `*_train/test.json` mirrors. If
-those files exist in an old workspace, they are legacy experiment artifacts and
-are outside the formal GER chain.
+The formal pipeline writes one standard dataset directory per runtime dataset.
+Romanian GER representation caches use the `ronacc_readerbench` dataset key.
 
 ## Runtime Flow
 

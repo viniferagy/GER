@@ -18,8 +18,8 @@ DATA_DIR_NAME = {
     "estgec_train": "multilingual/estgec_train",
     "falko_merlin": "multilingual/falko_merlin",
     "falko_merlin_train": "multilingual/falko_merlin_train",
-    "rogec": "multilingual/rogec",
-    "rogec_train": "multilingual/rogec_train",
+    "ronacc_readerbench": "multilingual/ronacc_readerbench",
+    "ronacc_readerbench_train": "multilingual/ronacc_readerbench_train",
     "wilocness": "multilingual/wilocness",
 }
 

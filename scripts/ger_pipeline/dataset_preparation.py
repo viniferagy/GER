@@ -38,7 +38,6 @@ def prepare_language_datasets(paths: ProjectPaths, lang: LanguageSpec, *, overwr
     elif lang.code == "de":
         prepare_falko_merlin(paths, overwrite=overwrite)
     elif lang.code == "ro":
-        prepare_rogec(paths, overwrite=overwrite)
         prepare_ronacc_readerbench(paths, overwrite=overwrite)
     elif lang.code == "et":
         prepare_estgec(paths, overwrite=overwrite)
@@ -253,8 +252,9 @@ def read_alternating_corrected_erroneous(path: Path, *, dataset: str, tokenizer_
 
 
 def prepare_rogec(paths: ProjectPaths, *, overwrite: bool) -> None:
+    """Prepare the old local RoGEC conversion for legacy comparisons only."""
     raw_dir = paths.datasets_dir / "multilingual_raw" / "RO-RoGEC"
-    dataset_dir = paths.datasets_dir / "multilingual" / "rogec"
+    dataset_dir = paths.datasets_dir / "legacy" / "multilingual" / "rogec"
     split_map = {"train": "train", "valid": "dev", "test": "test"}
     prepared_rows: dict[str, list[dict[str, object]]] = {}
     for split, raw_split in split_map.items():
@@ -263,7 +263,7 @@ def prepare_rogec(paths: ProjectPaths, *, overwrite: bool) -> None:
         write_json(dataset_dir / f"{split}.json", rows, overwrite=overwrite)
     write_parallel_text(dataset_dir / "test.src", dataset_dir / "test.tgt", prepared_rows["test"], overwrite=overwrite)
 
-    train_dir = paths.datasets_dir / "multilingual" / "rogec_train"
+    train_dir = paths.datasets_dir / "legacy" / "multilingual" / "rogec_train"
     write_json(train_dir / "train.json", prepared_rows["train"], overwrite=overwrite)
     write_json(train_dir / "valid.json", prepared_rows["valid"], overwrite=overwrite)
 
@@ -279,23 +279,36 @@ def write_parallel_text(src_path: Path, tgt_path: Path, rows: list[dict[str, obj
 
 
 def prepare_ronacc_readerbench(paths: ProjectPaths, *, overwrite: bool) -> None:
-    out_dir = paths.datasets_dir / "external" / "ronacc_readerbench"
+    dataset = "ronacc_readerbench"
+    out_dir = paths.datasets_dir / "external" / dataset
+    standard_dir = paths.datasets_dir / "multilingual" / dataset
+    train_dir = paths.datasets_dir / "multilingual" / f"{dataset}_train"
     out_dir.mkdir(parents=True, exist_ok=True)
+    prepared_rows: dict[str, list[dict[str, object]]] = {}
     for split in ("train", "dev", "test"):
         raw_path = out_dir / f"{split}.txt"
         if not raw_path.exists():
-            continue
-        lines = raw_path.read_text(encoding="utf-8", errors="replace").splitlines()
-        if len(lines) % 2:
-            raise ValueError(f"Expected even number of lines in {raw_path}")
-        tgts = [clean_space(line) for line in lines[0::2]]
-        srcs = [clean_space(line) for line in lines[1::2]]
-        src_path = out_dir / f"{split}.src"
-        tgt_path = out_dir / f"{split}.tgt"
-        if overwrite or not file_ok(src_path):
-            src_path.write_text("\n".join(srcs) + "\n", encoding="utf-8")
-        if overwrite or not file_ok(tgt_path):
-            tgt_path.write_text("\n".join(tgts) + "\n", encoding="utf-8")
+            src_path = out_dir / f"{split}.src"
+            tgt_path = out_dir / f"{split}.tgt"
+            require_file(src_path)
+            require_file(tgt_path)
+        else:
+            lines = raw_path.read_text(encoding="utf-8", errors="replace").splitlines()
+            if len(lines) % 2:
+                raise ValueError(f"Expected even number of lines in {raw_path}")
+            tgts = [clean_space(line) for line in lines[0::2]]
+            srcs = [clean_space(line) for line in lines[1::2]]
+            src_path = out_dir / f"{split}.src"
+            tgt_path = out_dir / f"{split}.tgt"
+            if overwrite or not file_ok(src_path):
+                src_path.write_text("\n".join(srcs) + "\n", encoding="utf-8")
+            if overwrite or not file_ok(tgt_path):
+                tgt_path.write_text("\n".join(tgts) + "\n", encoding="utf-8")
+        standard_split = "valid" if split == "dev" else split
+        prepared_rows[standard_split] = read_parallel_json_rows(src_path, tgt_path, dataset=dataset)
+        write_json(standard_dir / f"{standard_split}.json", prepared_rows[standard_split], overwrite=overwrite)
+    write_json(train_dir / "train.json", prepared_rows["train"], overwrite=overwrite)
+    write_json(train_dir / "valid.json", prepared_rows["valid"], overwrite=overwrite)
     maybe_generate_ronacc_m2(paths, overwrite=overwrite)
 
 
@@ -306,7 +319,7 @@ def maybe_generate_ronacc_m2(paths: ProjectPaths, *, overwrite: bool) -> None:
         return
     source = out_dir / "test.src"
     target = out_dir / "test.tgt"
-    errant_dir = paths.datasets_dir / "multilingual" / "rogec" / "errant"
+    errant_dir = paths.datasets_dir / "external" / "ronacc_readerbench" / "errant"
     ro_python = paths.root / ".conda_eval_official" / "bin" / "python"
     if not (file_ok(source) and file_ok(target) and ro_python.exists() and (errant_dir / "parallel_to_m2.py").exists()):
         return

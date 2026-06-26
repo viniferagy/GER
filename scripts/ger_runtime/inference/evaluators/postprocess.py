@@ -76,7 +76,7 @@ class PostProcess:
             PostProcessManipulator.en_tokenize: {"wilocness"},
             PostProcessManipulator.de_tokenize: {"falko_merlin", "falko_merlin_train"},
             PostProcessManipulator.et_tokenize: {"estgec", "estgec_train"},
-            PostProcessManipulator.ro_tokenize: {"rogec", "rogec_train"},
+            PostProcessManipulator.ro_tokenize: {"ronacc_readerbench", "ronacc_readerbench_train"},
             PostProcessManipulator.conll14: {"conll14"},
             PostProcessManipulator.bea19: {"bea19"},
             PostProcessManipulator.replace_linebreaker: None,
@@ -99,7 +99,7 @@ class PostProcess:
             self.post_process = [PostProcessManipulator.replace_linebreaker, PostProcessManipulator.de_tokenize]
         elif dataset in {"estgec", "estgec_train"}:
             self.post_process = [PostProcessManipulator.replace_linebreaker, PostProcessManipulator.et_tokenize]
-        elif dataset in {"rogec", "rogec_train"}:
+        elif dataset in {"ronacc_readerbench", "ronacc_readerbench_train"}:
             self.post_process = [PostProcessManipulator.replace_linebreaker, PostProcessManipulator.ro_tokenize]
         elif dataset == "conll14":
             self.post_process = [PostProcessManipulator.replace_linebreaker, PostProcessManipulator.conll14]
@@ -164,7 +164,7 @@ class PostProcess:
     def _replace_linebreaker(self):
         for item in self.results:
             item["predict"] = item["predict"].replace("\n", " ").replace("\r", " ").strip()
-            if "rogec" in self.args.dataset:
+            if self.args.dataset in {"ronacc_readerbench", "ronacc_readerbench_train"}:
                 item["predict"] = item["predict"].replace("(", " ( ").replace("  ", " ").replace("( ", "(")
 
     def _get_retokenized_predictions(self, tokenizer_model):

@@ -14,7 +14,7 @@ STANDARD_CHAR_THRESHOLDS = {
     "conll14": 0.70,
     "bea19": 0.70,
     "falko_merlin": 0.70,
-    "rogec": 0.96,
+    "ronacc_readerbench": 0.96,
     "estgec": 0.96,
 }
 NO_CORRECTION_RE = re.compile(

@@ -72,13 +72,13 @@ LANGUAGES: dict[str, LanguageSpec] = {
     ),
     "ro": LanguageSpec(
         code="ro",
-        test_dataset="rogec",
-        train_dataset="rogec_train",
-        source_dataset="rogec",
-        yaml_dataset="rogec:rogec",
+        test_dataset="ronacc_readerbench",
+        train_dataset="ronacc_readerbench_train",
+        source_dataset="ronacc_readerbench",
+        yaml_dataset="ronacc_readerbench:ronacc_readerbench",
         initial_prompt_icl="reproduce_space_ro_8fix",
         final_prompt_icl="min_edit_fewshot_space",
-        m2_relative_path="multilingual/rogec/test.m2",
+        m2_relative_path="external/ronacc_readerbench/test.m2",
     ),
     "et": LanguageSpec(
         code="et",

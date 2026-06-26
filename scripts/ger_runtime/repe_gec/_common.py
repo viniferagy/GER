@@ -78,7 +78,7 @@ LANG_TRAIN = {
     "bea19": "wilocness",
     "de": "falko_merlin_train",
     "et": "estgec_train",
-    "ro": "rogec_train",
+    "ro": "ronacc_readerbench_train",
 }
 
 LANG_TEST = {
@@ -86,7 +86,15 @@ LANG_TEST = {
     "bea19": "bea19",
     "de": "falko_merlin",
     "et": "estgec",
-    "ro": "rogec",
+    "ro": "ronacc_readerbench",
+}
+
+LANG_CACHE_KEY = {
+    "en": "en",
+    "bea19": "en",
+    "de": "de",
+    "et": "et",
+    "ro": "ronacc_readerbench",
 }
 
 # (COR_EXP, TOP_K) per language - retriever-only knobs.

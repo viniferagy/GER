@@ -79,14 +79,10 @@ datasets/
       train.txt
       dev.txt
       test.txt
-  multilingual/
-    rogec/
-      errant/
   multilingual_raw/
     EN-conll14st-test-data/
     EN-wi+locness/
     DE-FALKO-MERLIN/
-    RO-RoGEC/
     ET-estgec/
 ```
 
@@ -97,7 +93,7 @@ Public source pages for these datasets:
 | `multilingual_raw/EN-conll14st-test-data/` | [CoNLL-2014 Shared Task data release](https://www.comp.nus.edu.sg/~nlp/conll14st.html). Use the released annotated test data. |
 | `multilingual_raw/EN-wi+locness/` | [BEA-2019 Shared Task data page](https://www.cl.cam.ac.uk/research/nl/bea2019st/). This provides W&I+LOCNESS train/dev/test inputs; official BEA-19 test scores must be obtained through Codabench. |
 | `multilingual_raw/DE-FALKO-MERLIN/` | [Falko-MERLIN GEC corpus release](https://github.com/adrianeboyd/boyd-wnut2018) used by Boyd (2018). The original MERLIN corpus is also available from the [MERLIN/PORTA corpus portal](https://www.porta.eurac.edu/lci/merlin/). |
-| `multilingual_raw/RO-RoGEC/` and `external/ronacc_readerbench/` | [RoGEC/RONACC repository](https://github.com/teodor-cotet/RoGEC), which links the RONACC corpus and tokenized release used for Romanian GEC. |
+| `external/ronacc_readerbench/` | [RONACC ReaderBench assets](https://nextcloud.readerbench.com/s/9pwymesT5sycxoM) for Romanian GEC. |
 | `multilingual_raw/ET-estgec/` | [TartuNLP EstGEC resources](https://github.com/TartuNLP/estgec) for the Tartu L1/L2 corpus files, plus the [EstGEC-L2 corpus](https://github.com/tlu-dt-nlp/EstGEC-L2-Corpus) for the M2-format Estonian L2 dev/test corpus. |
 
 Prepare the standard JSON and runtime files.
@@ -118,7 +114,7 @@ Language keys:
 en    -> CoNLL-14
 bea19 -> BEA-19
 de    -> Falko-Merlin
-ro    -> RoGEC / RONACC ReaderBench
+ro    -> RONACC ReaderBench
 et    -> EstGEC
 ```
 

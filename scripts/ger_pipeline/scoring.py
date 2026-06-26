@@ -109,9 +109,9 @@ def score_formal_output(paths: ProjectPaths, run: FinalRun, *, execute: bool, ov
         )
     elif run.lang.code == "ro":
         hyp_m2 = run.score_dir / "hyp.m2"
-        source = paths.root / "datasets" / "external" / "ronacc_readerbench" / "test.src"
-        reference = paths.root / "datasets" / "external" / "ronacc_readerbench" / "test.m2"
-        errant_dir = paths.root / "datasets" / "multilingual" / "rogec" / "errant"
+        source = paths.datasets_dir / "external" / "ronacc_readerbench" / "test.src"
+        reference = paths.datasets_dir / run.lang.m2_relative_path
+        errant_dir = paths.datasets_dir / "external" / "ronacc_readerbench" / "errant"
         ro_python = paths.root / ".conda_eval_official" / "bin" / "python"
         ro_ca_bundle = paths.root / ".conda_eval_official" / "ssl" / "cacert.pem"
         ro_env = {"SSL_CERT_FILE": str(ro_ca_bundle), "REQUESTS_CA_BUNDLE": str(ro_ca_bundle)}
@@ -140,4 +140,3 @@ def score_formal_output(paths: ProjectPaths, run: FinalRun, *, execute: bool, ov
         )
     if execute:
         require_file(run.final_artifact)
-

@@ -11,6 +11,13 @@ from .files import file_ok, require_file
 from .postprocess import Variant, clean_prediction, standard_char_threshold
 
 
+TOKENIZER_MODELS = {
+    "de": "de_core_news_sm",
+    "ro": "ro_core_news_sm",
+    "et": "et_dep_ud_sm",
+}
+
+
 @dataclass(frozen=True)
 class FinalRun:
     model: ModelSpec
@@ -59,6 +66,27 @@ class FinalRun:
         return self.score_dir / f"{self.dataset}.score"
 
 
+def runtime_normalize_line(line: str, dataset: str) -> str:
+    normalized = line.replace("\n", " ").replace("\r", " ").strip()
+    if dataset in {"ronacc_readerbench", "ronacc_readerbench_train"}:
+        normalized = normalized.replace("(", " ( ").replace("  ", " ").replace("( ", "(")
+    return normalized
+
+
+def retokenize_lines_for_runtime(run: FinalRun, lines: list[str]) -> list[str]:
+    model_name = TOKENIZER_MODELS.get(run.lang.code)
+    if not model_name:
+        return lines
+    from ger_runtime.inference.evaluators.postprocess import load_spacy_or_blank
+
+    tokenizer_model = load_spacy_or_blank(model_name)
+    retokenized: list[str] = []
+    for line in lines:
+        normalized = runtime_normalize_line(line, run.dataset)
+        retokenized.append(" ".join(token.text for token in tokenizer_model.tokenizer(normalized)).strip())
+    return retokenized
+
+
 def write_formal_predictions(run: FinalRun, *, execute: bool, overwrite: bool) -> tuple[Path, Path]:
     print(f"[step] formal-output {run.model.key}/{run.lang.code}/{run.method}/seed{run.seed}", flush=True)
     print(f"       input={run.raw_predictions}", flush=True)
@@ -98,6 +126,7 @@ def write_formal_predictions(run: FinalRun, *, execute: bool, overwrite: bool) -
             stats[reason] = int(stats.get(reason, 0)) + 1
             handle.write(json.dumps(item, ensure_ascii=False) + "\n")
             lines.append(cleaned.replace("\n", " ").replace("\r", " ").strip())
+    lines = retokenize_lines_for_runtime(run, lines)
     run.final_output.write_text("\n".join(lines) + "\n", encoding="utf-8")
     if run.lang.code == "en":
         (run.score_dir / "conll14-output-retokenized.txt").write_text(run.final_output.read_text(encoding="utf-8"), encoding="utf-8")

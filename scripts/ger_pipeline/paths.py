@@ -91,7 +91,12 @@ class ProjectPaths:
         return self.multilingual_dir / "runtime_sources" / lang.test_dataset / "test.src"
 
     def cache_prefix(self, model: ModelSpec, lang: LanguageSpec) -> str:
-        cache_code = "en" if lang.code == "bea19" else lang.code
+        if lang.code == "bea19":
+            cache_code = "en"
+        elif lang.code == "ro":
+            cache_code = lang.test_dataset
+        else:
+            cache_code = lang.code
         return f"gec_representation_cache_{model.key}_{model.initial_result_mode}_{cache_code}{self.train_suffix}"
 
     def m2_file(self, lang: LanguageSpec) -> Path:

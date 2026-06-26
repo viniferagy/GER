@@ -53,6 +53,7 @@ import numpy as np
 
 import _icl_examples
 from _common import (
+    LANG_CACHE_KEY,
     LANG_TRAIN,
     MODEL_LAYER_INDEX,
     build_truncated_pairs,
@@ -316,7 +317,7 @@ def main(argv: Optional[list[str]] = None) -> None:
     args = resolve_paths(parse_args(argv))
     cache_prefix = (
         f"gec_representation_cache_"
-        f"{args.model_name}_{args.initial_result_mode}_{'en' if args.lang == 'bea19' else args.lang}{args.suffix}"
+        f"{args.model_name}_{args.initial_result_mode}_{LANG_CACHE_KEY[args.lang]}{args.suffix}"
     )
     os.environ["CUDA_VISIBLE_DEVICES"] = args.gpu
     default_cache_shards = str(max(1, len(_parse_gpu_list(args.gpu))))

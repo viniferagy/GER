@@ -33,7 +33,7 @@ def method_stem(method: str) -> str:
 
 
 def table_dataset_name(lang: LanguageSpec) -> str:
-    return "ronacc_readerbench" if lang.code == "ro" else lang.test_dataset
+    return lang.test_dataset
 
 
 def default_final_root(paths: ProjectPaths, model: ModelSpec) -> Path:

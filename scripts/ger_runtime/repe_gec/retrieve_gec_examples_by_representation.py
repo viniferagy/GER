@@ -43,6 +43,7 @@ from tqdm import tqdm
 
 import _icl_examples
 from _common import (
+    LANG_CACHE_KEY,
     LANG_RETRIEVAL_HP,
     LANG_TRAIN,
     MODEL_LAYER_INDEX,
@@ -570,7 +571,7 @@ def main(argv: list[str] | None = None) -> None:
     args = resolve_paths(parse_args(argv))
     cache_prefix = (
         f"gec_representation_cache_"
-        f"{args.model_name}_{args.initial_result_mode}_{'en' if args.lang == 'bea19' else args.lang}{args.train_suffix}"
+        f"{args.model_name}_{args.initial_result_mode}_{LANG_CACHE_KEY[args.lang]}{args.train_suffix}"
     )
     os.environ["CUDA_VISIBLE_DEVICES"] = args.gpus
 

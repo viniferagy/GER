@@ -20,7 +20,7 @@ SPACY_BLANK_MAP = {
 
 TRAIN_TOKENIZER_MODEL = {
     "estgec_train": "et_dep_ud_sm",
-    "rogec_train": "ro_core_news_sm",
+    "ronacc_readerbench_train": "ro_core_news_sm",
 }
 
 
@@ -61,7 +61,7 @@ def _retokenize_train_line(line: str, dataset: str):
     if model_name not in models:
         models[model_name] = _load_spacy_or_blank(model_name)
     text = _clean_line(line)
-    if dataset == "rogec_train":
+    if dataset == "ronacc_readerbench_train":
         text = text.replace("(", " ( ").replace("( ", "(")
         text = re.sub(r"\s+", " ", text).strip()
     return " ".join(token.text for token in models[model_name].tokenizer(text)).strip()
